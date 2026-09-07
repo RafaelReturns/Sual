@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Ad Günün Mübarək, Sevgilim!</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Tone.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <!-- Three.js (r128) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- EmailJS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            emailjs.init({
+                publicKey: "MJ9355wIzal1254Xy",
+            });
+        })();
+    </script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        cursive: ['Dancing Script', 'cursive'],
+                        serif: ['Playfair Display', 'serif'],
+                        cinzel: ['Cinzel', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            100: '#FFF2D4',
+                            300: '#F7D070',
+                            400: '#E2B144',
+                            500: '#C7932A',
+                        },
+                        rose: {
+                            900: '#2A0813',
+                            950: '#140308',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* SCROLL LOCK FOR INTRO */
+        html.intro-active, body.intro-active {
+            overflow: hidden !important;
+            height: 100dvh !important;
+            touch-action: none !important;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #050208;
+            color: white;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            font-family: 'Inter', sans-serif;
+        }
+
+        ::-webkit-scrollbar { display: none; }
+        * { scrollbar-width: none; -webkit-tap-highlight-color: transparent; }
+
+        /* MUSIC POPUP */
+        #music-popup {
+            position: fixed;
+            inset: 0;
+            z-index: 11000;
+            background-color: #000000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1.5s ease-in-out;
+            touch-action: none;
+        }
+        
+        /* CINEMATIC INTRO */
+        #cinematic-intro {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background-color: #000000;
+            touch-action: none;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #intro-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            pointer-events: none;
+        }
+
+        /* CLOUD TRANSITION CANVAS */
+        #cloud-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            pointer-events: none;
+            z-index: 10500; /* Above everything during transitions */
+        }
+        
+        #intro-click-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 10010;
+            cursor: pointer;
+            touch-action: none; /* Crucial for immediate pointer events on mobile */
+        }
+
+        /* HEART TEXT */
+        #heart-text-container {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+            z-index: 10005;
+        }
+        
+        .heart-typography {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            text-align: center;
+            color: rgba(255, 250, 245, 0.95);
+            line-height: 2.2;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+            font-size: 1.0rem;
+            padding: 0 20px;
+        }
+        @media (min-width: 768px) {
+            .heart-typography { font-size: 1.3rem; line-height: 2.4; }
+        }
+
+        /* CINEMATIC OUTRO */
+        #cinematic-outro {
+            position: fixed;
+            inset: 0;
+            z-index: 9000; /* Will sit behind cloud canvas during transition */
+            display: none; /* Activated via JS */
+            background-color: #000000; /* Pure Black Cosmos */
+            touch-action: none;
+            pointer-events: auto;
+        }
+        #outro-stars-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            pointer-events: none;
+        }
+        #outro-text-container {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 9005;
+        }
+        #outro-text {
+            max-width: 600px;
+            padding: 0 25px;
+            text-align: center;
+            filter: blur(15px);
+            opacity: 0;
+            transition: filter 4s ease-out, opacity 4s ease-in;
+        }
+        .outro-sharp {
+            filter: blur(0px) !important;
+            opacity: 1 !important;
+        }
+        .outro-typography {
+            font-family: 'Playfair Display', serif;
+            color: #ffffff;
+            font-size: 1.1rem;
+            line-height: 2.4;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+        }
+        @media (min-width: 768px) {
+            .outro-typography { font-size: 1.5rem; line-height: 2.6; }
+        }
+
+        /* MAIN EXISTING BACKGROUND */
+        #bg-canvas { position: fixed; inset: 0; z-index: -10; background: #050208; }
+        #particle-canvas { position: fixed; inset: 0; z-index: -5; pointer-events: none; }
+
+        .bg-layer { position: absolute; inset: 0; opacity: 0; transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1); mix-blend-mode: screen; }
+        #bg-1 { background: radial-gradient(circle at 50% 30%, #3d0d1f 0%, #17050d 50%, #030105 100%); }
+        #bg-2 { background: radial-gradient(circle at 50% 50%, #2b1809 0%, #120903 60%, #030105 100%); }
+        #bg-3 { background: radial-gradient(circle at 50% 60%, #200a2e 0%, #0d0314 60%, #030105 100%); }
+        #bg-4 { background: radial-gradient(circle at 50% 40%, #3b0d23 0%, #17040d 70%, #030105 100%); }
+        #bg-5 { background: radial-gradient(circle at 50% 70%, #08212e 0%, #030d14 60%, #030105 100%); }
+
+        .ambient-glow { position: absolute; width: 70vh; height: 70vh; border-radius: 50%; filter: blur(100px); opacity: 0.25; pointer-events: none; animation: pulseGlow 8s ease-in-out infinite alternate; }
+        @keyframes pulseGlow { 0% { transform: scale(0.9); opacity: 0.2; } 100% { transform: scale(1.15); opacity: 0.35; } }
+        .glow-gold { background: rgba(247, 208, 112, 0.15); top: -15%; left: -10%; }
+        .glow-rose { background: rgba(232, 100, 140, 0.15); bottom: -10%; right: -10%; }
+
+        section { min-height: 100vh; width: 100%; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px 0; z-index: 1; }
+        .app-container { max-width: 480px; margin: 0 auto; position: relative; }
+
+        .gold-text-gradient { background: linear-gradient(135deg, #FFF1D0 0%, #F7D070 40%, #E2B144 70%, #9E741B 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 30px rgba(226, 177, 68, 0.3); }
+        .rose-text-gradient { background: linear-gradient(135deg, #FFE3EB 0%, #F393B4 50%, #C8537A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .glass-panel { background: rgba(20, 10, 18, 0.55); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(247, 208, 112, 0.18); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255, 255, 255, 0.12); border-radius: 28px; }
+        .glass-btn { background: linear-gradient(135deg, rgba(247, 208, 112, 0.2), rgba(232, 100, 140, 0.15)); backdrop-filter: blur(12px); border: 1px solid rgba(247, 208, 112, 0.4); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2); transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .glass-btn:hover:not(:disabled) { transform: translateY(-2px) scale(1.02); border-color: rgba(247, 208, 112, 0.7); box-shadow: 0 15px 30px rgba(247, 208, 112, 0.3); }
+        .glass-btn:active:not(:disabled) { transform: scale(0.96); }
+
+        .envelope-scene { perspective: 1200px; width: 100%; height: 420px; display: flex; justify-content: center; align-items: center; margin-top: 10px; }
+        .envelope-wrapper { position: relative; width: 320px; height: 220px; transform-style: preserve-3d; transform: rotateX(12deg) rotateY(-6deg) rotateZ(-1deg); transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); filter: drop-shadow(0 35px 45px rgba(0,0,0,0.85)); }
+        .env-back { position: absolute; inset: 0; background: linear-gradient(135deg, #2b131c, #1a0a10); border-radius: 12px; border: 1px solid rgba(247, 208, 112, 0.25); box-shadow: inset 0 0 30px rgba(0,0,0,0.5); }
+        .env-letter { position: absolute; left: 15px; right: 15px; bottom: 10px; height: 330px; background: #fdfbf7; border-radius: 8px; box-shadow: 0 -5px 25px rgba(0,0,0,0.3), inset 0 0 25px rgba(220,190,150,0.25); z-index: 10; transition: transform 0.1s ease-out; touch-action: none; color: #38261c; padding: 30px 22px; display: flex; flex-direction: column; align-items: center; transform: translateY(-30px); cursor: grab; border: 1px solid #ebd0b7; background-image: radial-gradient(#e2c1a4 0.75px, transparent 0.75px); background-size: 12px 12px; }
+        .env-letter.reading { transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1); transform: translateY(-270px) translateZ(90px) rotateX(-12deg) rotateY(6deg) scale(1.12) !important; z-index: 40; box-shadow: 0 45px 70px rgba(0,0,0,0.6), 0 0 80px rgba(247,208,112,0.15); }
+        .env-front { position: absolute; inset: 0; z-index: 20; pointer-events: none; }
+        .env-front::before, .env-front::after { content: ''; position: absolute; bottom: 0; width: 0; height: 0; }
+        .env-front::before { left: 0; border-left: 160px solid #361723; border-right: 160px solid transparent; border-bottom: 140px solid #28101a; border-radius: 0 0 0 12px; filter: drop-shadow(5px -5px 10px rgba(0,0,0,0.3)); }
+        .env-front::after { right: 0; border-right: 160px solid #331521; border-left: 160px solid transparent; border-bottom: 140px solid #230d16; border-radius: 0 0 12px 0; filter: drop-shadow(-5px -5px 10px rgba(0,0,0,0.35)); }
+        .env-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 120px; background: linear-gradient(to top, #28101a, transparent); clip-path: polygon(0 100%, 50% 0, 100% 100%); z-index: 21; border-radius: 0 0 12px 12px; pointer-events: none; }
+        .env-flap-top { position: absolute; top: 0; left: 0; right: 0; border-left: 160px solid transparent; border-right: 160px solid transparent; border-top: 130px solid #421d2b; transform-origin: top; transform: rotateX(180deg); z-index: 5; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.4)); }
+        .wax-seal { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); width: 48px; height: 48px; background: radial-gradient(circle at 30% 30%, #f7d070, #b8860b); border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; color: #4a0d18; font-size: 20px; z-index: 25; border: 2px solid rgba(255,255,255,0.25); }
+
+        .cake-scene { position: relative; width: 100%; height: 62vh; min-height: 430px; display: flex; justify-content: center; align-items: center; margin-top: 10px; z-index: 50; border-radius: 28px; background: radial-gradient(circle at 50% 40%, rgba(30, 15, 25, 0.75) 0%, rgba(5, 2, 8, 0.98) 100%); box-shadow: inset 0 0 80px rgba(0,0,0,0.95), 0 25px 60px rgba(0,0,0,0.8); border: 1px solid rgba(247, 208, 112, 0.15); overflow: hidden; }
+        #three-canvas-container, #gifts-three-container { width: 100%; height: 100%; position: absolute; inset: 0; outline: none; touch-action: none; }
+        #gifts-three-container { position: relative; height: 62vh; min-height: 430px; border-radius: 28px; background: radial-gradient(circle at 50% 45%, rgba(25, 12, 35, 0.7) 0%, rgba(4, 1, 8, 0.98) 100%); box-shadow: inset 0 0 80px rgba(0,0,0,0.95), 0 25px 60px rgba(0,0,0,0.8); border: 1px solid rgba(247, 208, 112, 0.15); overflow: hidden; }
+
+        input, textarea { background: rgba(10, 5, 12, 0.6); border: 1px solid rgba(247, 208, 112, 0.2); color: white; box-shadow: inset 0 2px 10px rgba(0,0,0,0.6); transition: all 0.3s ease; }
+        input:focus, textarea:focus { outline: none; border-color: rgba(247, 208, 112, 0.7); background: rgba(15, 8, 18, 0.8); box-shadow: inset 0 2px 10px rgba(0,0,0,0.6), 0 0 20px rgba(247, 208, 112, 0.25); }
+
+        .fade-in-scroll { opacity: 0; transform: translateY(40px) scale(0.96); transition: all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .fade-in-scroll.visible { opacity: 1; transform: translateY(0) scale(1); }
+    </style>
+</head>
+<body class="intro-active">
+
+    <!-- AUDIO SYSTEM -->
+    <audio id="reflection-audio" loop preload="auto">
+        <source src="./reflection.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- MUSIC POPUP -->
+    <div id="music-popup">
+        <div class="relative z-10 flex flex-col items-center text-center px-6">
+            <p class="font-serif text-white/70 text-sm sm:text-base mb-2 tracking-wide">Bu hekayəyə bir mahnı ilə başlayaq.</p>
+            <p class="font-cinzel text-2xl sm:text-3xl text-white/90 mb-10 tracking-[0.2em]" style="text-shadow: 0 0 20px rgba(255,255,255,0.2);">"Reflection"</p>
+            <button id="btn-start-intro" class="border border-white/20 px-10 py-3 rounded-full text-white/90 font-sans text-xs tracking-[0.3em] uppercase transition-all duration-500 hover:bg-white/10 hover:border-white/50">
+                BAŞLA
+            </button>
+        </div>
+    </div>
+
+    <!-- CINEMATIC PARTICLE INTRO -->
+    <div id="cinematic-intro">
+        <canvas id="intro-canvas"></canvas>
+        <div id="intro-click-layer"></div>
+        <div id="heart-text-container">
+            <p class="heart-typography" id="heart-text">
+                Bu milyonlarla saniyənin,<br>
+                on minlərlə dəqiqənin,<br>
+                yüzlərlə saatın,<br>
+                onlarla günün<br>
+                hər anında səni sevdim.
+            </p>
+        </div>
+    </div>
+
+    <!-- CLOUD TRANSITION CANVAS -->
+    <canvas id="cloud-canvas"></canvas>
+    
+    <!-- CINEMATIC OUTRO (FINAL BLACK SCREEN) -->
+    <div id="cinematic-outro">
+        <canvas id="outro-stars-canvas"></canvas>
+        <div id="outro-text-container">
+            <div id="outro-text">
+                <p class="outro-typography">
+                    Bu gün sənin bu dünyaya göz açaraq mənim dünyamı işıqlandırdığın gündü.<br>
+                    Səninlə keçirdiyim ilk ad günündü.<br>
+                    Bundan sonra da ruhun bədənindən ayrılıb sonsuzluğa qarışana qədər yanında olacam.<br><br>
+                    -sevgilin
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN EXISTING BACKGROUND -->
+    <div id="bg-canvas">
+        <div id="bg-1" class="bg-layer" style="opacity: 1;"></div>
+        <div id="bg-2" class="bg-layer"></div>
+        <div id="bg-3" class="bg-layer"></div>
+        <div id="bg-4" class="bg-layer"></div>
+        <div id="bg-5" class="bg-layer"></div>
+        <div class="ambient-glow glow-gold"></div>
+        <div class="ambient-glow glow-rose"></div>
+    </div>
+    
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Music Toggle Button -->
+    <div class="fixed top-0 left-0 w-full z-50 p-4 flex justify-end pointer-events-none" style="max-width: 480px; left: 50%; transform: translateX(-50%);">
+        <button id="music-toggle" class="glass-btn w-12 h-12 rounded-full flex items-center justify-center pointer-events-auto hidden transition-opacity duration-1000 opacity-0">
+            <i class="fas fa-music text-gold-300 text-lg drop-shadow"></i>
+        </button>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div class="app-container">
+        <section id="section1" data-bg="1">
+            <div class="w-full px-4 flex flex-col items-center pt-8">
+                <span class="text-xs uppercase tracking-[0.3em] text-gold-300/70 font-cinzel mb-2">Özəl Təbrik</span>
+                <h1 class="font-cinzel text-3xl sm:text-4xl font-bold gold-text-gradient mb-2 text-center">Ad Günün Mübarək</h1>
+                <p class="text-white/60 text-xs font-sans mb-8 tracking-widest uppercase flex items-center gap-2">
+                    <i class="fas fa-hand-pointer text-gold-300 animate-bounce"></i> Məktubu açmaq üçün yuxarı sürüşdür
+                </p>
+                
+                <div class="envelope-scene">
+                    <div class="envelope-wrapper" id="envelope-wrap">
+                        <div id="drag-letter" class="env-letter">
+                            <h2 class="font-cursive text-3xl mb-3 text-[#7a2838] font-bold border-b border-[#ebd0b7] pb-2 w-full text-center">Həyatımın Mənasına</h2>
+                            <p class="text-xs sm:text-sm font-serif leading-relaxed font-medium mt-1 flex-grow text-justify opacity-90 text-[#3d261a]">
+                                Səninlə keçən hər gün mənə verilən ən gözəl hədiyyədir. Gözlərini açdığın bu gün, mənim dünyamın da işıqlandığı gündür. Yeni yaşın sənə yalnız xoşbəxtlik, sevinc və sonsuz sevgimizi gətirsin. Mən isə həmişə, hər anında səninlə olacam...
+                            </p>
+                            <i class="fas fa-heart text-[#a82a40] text-xl mt-2"></i>
+                            <p class="text-[9px] text-gray-500 text-center uppercase tracking-widest mt-4 drag-hint animate-pulse absolute bottom-3">
+                                <i class="fas fa-chevron-up mb-1"></i><br>Çıxar
+                            </p>
+                        </div>
+                        <div class="env-back"></div>
+                        <div class="env-front"></div>
+                        <div class="env-bottom"></div>
+                        <div class="env-flap-top"></div>
+                        <div class="wax-seal"><i class="fas fa-heart"></i></div>
+                    </div>
+                </div>
+                
+                <div class="mt-16 text-center text-xs text-gold-300/50 animate-bounce flex flex-col items-center gap-1 font-cinzel">
+                    <span>Daha Dərinə En</span>
+                    <i class="fas fa-chevron-down text-sm"></i>
+                </div>
+            </div>
+        </section>
+
+        <section id="section2" data-bg="2">
+            <div class="w-full px-4 flex flex-col items-center fade-in-scroll">
+                <span class="text-xs uppercase tracking-[0.3em] text-gold-300/70 font-cinzel mb-1">Sehrli An</span>
+                <h2 class="font-cinzel text-3xl sm:text-4xl mb-2 text-center gold-text-gradient">Dilək Tut</h2>
+                <p class="text-xs text-amber-200/60 text-center mb-4 font-sans tracking-wide">Şamları söndürmək üçün barmağını alovlara yaxınlaşdır...</p>
+                
+                <div class="cake-scene" id="cake-scene-container">
+                    <div id="three-canvas-container"></div>
+                </div>
+                
+                <p id="cake-success-msg" class="mt-6 font-cursive text-3xl sm:text-4xl gold-text-gradient opacity-0 transition-opacity duration-1000 text-center">
+                    Arzuların çin olsun! ✨❤️
+                </p>
+            </div>
+        </section>
+
+        <section id="section3" data-bg="3">
+            <div class="w-full px-4 fade-in-scroll">
+                <span class="text-xs uppercase tracking-[0.3em] text-gold-300/70 font-cinzel mb-1 text-center block">Sürpriz</span>
+                <h2 class="font-cinzel text-3xl sm:text-4xl mb-2 text-center gold-text-gradient">Hədiyyəni Seç</h2>
+                <p class="text-xs text-white/60 text-center mb-5 font-sans">Lüks qutulardan birinə toxun. İçindəki xüsusi sürpriz 3D açılacaq!</p>
+                
+                <div id="gifts-three-container"></div>
+                
+                <div id="gift-msg" class="hidden mt-5 text-center text-xs sm:text-sm font-medium p-4 glass-panel border border-gold-300/30 transition-all duration-500">
+                    Seçim yadda saxlanıldı! 🎁
+                </div>
+            </div>
+        </section>
+
+        <section id="section4" data-bg="4">
+            <div class="w-full fade-in-scroll px-4">
+                <span class="text-xs uppercase tracking-[0.3em] text-gold-300/70 font-cinzel mb-1 text-center block">Sevgi Qeydləri</span>
+                <h2 class="font-cinzel text-2xl sm:text-3xl mb-6 text-center rose-text-gradient">Səni Sevməyimin 16 Səbəbi</h2>
+                
+                <div class="flex flex-col gap-3.5 h-[58vh] overflow-y-auto px-2 pb-10 relative font-sans" style="-webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);">
+                    <script>
+                        const reasons = [
+                            "Gülüşün mənim dünyamı işıqlandırır.",
+                            "Gözlərinə baxanda bütün dərdləri unuduram.",
+                            "Qəlbinin təmizliyi hər halından bəlli olur.",
+                            "Mənə hər zaman ən böyük dəstək sən olursan.",
+                            "Səninlə hər adi an belə bir nağıla çevrilir.",
+                            "Səsin mənə dinclik verən ən gözəl melodiyadır.",
+                            "Xırda detallara belə sevgi ilə yanaşmağın...",
+                            "Uşaq kimi sevinməyin, saf ürəyin.",
+                            "Həyata baxış bucağın məni ilhamlandırır.",
+                            "Darıxanda ilk sənin adın ağlıma gəlir.",
+                            "Əllərindən tutanda hiss etdiyim güvən.",
+                            "Məni heç kimin tanımadığı qədər yaxşı tanıyırsan.",
+                            "İnadkarlığın belə çox şirindir.",
+                            "Gələcəyi sənsiz təsəvvür edə bilməməyim.",
+                            "Sən sadəcə sevgilim deyil, ən yaxın dostumsan.",
+                            "Sən sən olduğun üçün... Bütün varlığınla!"
+                        ];
+                        
+                        reasons.forEach((reason, index) => {
+                            let highlight = index === 15 ? 'gold-text-gradient font-bold' : 'text-white/90';
+                            let badgeStyle = index === 15 ? 'border-amber-400/80 bg-amber-400/20 text-gold-300' : 'border-white/10 bg-white/5 text-white/50';
+                            document.write(`
+                                <div class="glass-panel p-4 flex items-center gap-4 transition-all hover:scale-[1.02] duration-300">
+                                    <div class="w-10 h-10 rounded-2xl flex items-center justify-center border ${badgeStyle} font-cinzel font-bold text-base flex-shrink-0">
+                                        ${index + 1}
+                                    </div>
+                                    <p class="text-xs sm:text-sm leading-relaxed ${highlight}">${reason}</p>
+                                </div>
+                            `);
+                        });
+                    </script>
+                </div>
+            </div>
+        </section>
+
+        <section id="section5" data-bg="5">
+            <div class="glass-panel p-6 sm:p-8 w-[95%] fade-in-scroll">
+                <div class="text-center mb-6">
+                    <i class="fas fa-paper-plane text-3xl text-gold-300 mb-3" style="filter: drop-shadow(0 0 15px rgba(247,208,112,0.6));"></i>
+                    <h2 class="font-cinzel text-2xl sm:text-3xl mb-1 gold-text-gradient">10 Arzun</h2>
+                    <p class="text-xs text-white/60 font-sans">Bu yaşın şərəfinə məndən istədiyin 10 şeyi yaz. Şansına düşən hədiyyə ilə birlikdə mənə göndəriləcək! ❤️</p>
+                </div>
+                <form id="wish-form" class="flex flex-col gap-4">
+                    <textarea id="wish-list" rows="6" placeholder="1. Birlikdə səyahət...&#10;2. Xüsusi bir gün...&#10;..." class="w-full p-4 rounded-2xl text-xs sm:text-sm resize-none font-sans"></textarea>
+                    <button id="submit-wish-btn" type="submit" class="glass-btn mt-2 w-full py-3.5 rounded-2xl font-bold flex items-center justify-center gap-3 text-gold-100 font-cinzel text-xs tracking-wider uppercase transition-all duration-300">
+                        <span id="submit-btn-text">Göndər</span>
+                        <i id="submit-btn-icon" class="fas fa-arrow-right text-xs"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="h-20"></div> 
+        </section>
+
+        <div id="locked-gift-modal" class="fixed inset-0 z-[110] flex items-center justify-center bg-black/80 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 pointer-events-none">
+            <div class="glass-panel max-w-[85%] w-[320px] p-6 text-center transform scale-90 transition-all duration-300 border border-gold-300/30 pointer-events-auto" id="locked-notif-card">
+                <div class="w-14 h-14 mx-auto rounded-full flex items-center justify-center mb-3 bg-gold-300/10 border border-gold-300/30">
+                    <i class="fas fa-gift text-2xl text-gold-300 animate-pulse"></i>
+                </div>
+                <h3 class="text-xl font-cinzel font-bold gold-text-gradient mb-2">Hədiyyə Seçilib ❤️</h3>
+                <p class="text-xs text-white/80 mb-5 font-sans leading-relaxed">
+                    Sən artıq öz xüsusi hədiyyəni seçmisən. Seçdiyin sürpriz səni gözləyir!
+                </p>
+                <button onclick="closeLockedNotification()" class="w-full glass-btn py-2.5 rounded-xl font-bold text-xs uppercase font-cinzel tracking-widest text-gold-100">
+                    Aydındır ✨
+                </button>
+            </div>
+        </div>
+
+        <!-- YENİ CUSTOM XƏBƏRDARLIQ MODALI -->
+        <div id="custom-alert-modal" class="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 pointer-events-none">
+            <div class="glass-panel max-w-[85%] w-[320px] p-6 text-center transform scale-90 transition-all duration-300 border border-gold-300/30 pointer-events-auto" id="custom-alert-card">
+                <div class="w-14 h-14 mx-auto rounded-full flex items-center justify-center mb-3 bg-white/5 border border-white/10" id="custom-alert-icon-wrap">
+                    <i id="custom-alert-icon" class="fas fa-info-circle text-2xl"></i>
+                </div>
+                <h3 id="custom-alert-title" class="text-xl font-cinzel font-bold text-white mb-2">Başlıq</h3>
+                <p id="custom-alert-text" class="text-xs text-white/80 mb-5 font-sans leading-relaxed">
+                    Mesaj mətni bura gələcək.
+                </p>
+                <button onclick="closeCustomAlert()" class="w-full glass-btn py-2.5 rounded-xl font-bold text-xs uppercase font-cinzel tracking-widest text-gold-100">
+                    Aydındır ✨
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // GLOBAL EMAILJS DƏYİŞƏNLƏRİ
+        let globalSelectedGift = null;
+        let globalSelectedGiftBoxIndex = null;
+
+        // CUSTOM ALERT FUNKSİYALARI
+        function showCustomAlert(title, message, iconClass, iconColorClass) {
+            document.getElementById('custom-alert-title').innerText = title;
+            document.getElementById('custom-alert-text').innerText = message;
+            
+            const iconEl = document.getElementById('custom-alert-icon');
+            iconEl.className = `fas ${iconClass} text-2xl ${iconColorClass}`;
+            
+            const modal = document.getElementById('custom-alert-modal');
+            const card = document.getElementById('custom-alert-card');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                card.classList.remove('scale-90');
+                card.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeCustomAlert() {
+            const modal = document.getElementById('custom-alert-modal');
+            const card = document.getElementById('custom-alert-card');
+            modal.classList.add('opacity-0');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-90');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        // INTRO PARTICLE SYSTEM - EXACT LOGIC AS REQUESTED
+        const introCanvas = document.getElementById('intro-canvas');
+        const introCtx = introCanvas.getContext('2d', { alpha: false });
+        let introW, introH, isMobile;
+        
+        let introParticles = [];
+        let allTextTargetsList = []; // Target coordinates for the 6 texts
+        let heartTargetsList = []; // Target coordinates for the heart outline
+        
+        // Touch State Machine Variables
+        let introStateIndex = 0; 
+        let canTap = true;
+        let activeTextCount = 0; // Tracks how many text lines are currently visible (up to 6)
+        
+        const introTexts = [
+            "2,937,600 saniyə",
+            "48,960 dəqiqə",
+            "816 saat",
+            "34 gün",
+            "5 həftə",
+            "1 ay"
+        ];
+        
+        function resizeIntro() {
+            introW = Math.max(window.innerWidth || document.documentElement.clientWidth || 300, 10);
+            introH = Math.max(window.innerHeight || document.documentElement.clientHeight || 300, 10);
+            isMobile = introW < 768;
+            if(introCanvas) {
+                introCanvas.width = introW;
+                introCanvas.height = introH;
+            }
+        }
+        window.addEventListener('resize', resizeIntro);
+        resizeIntro();
+
+        // 1. DYNAMIC PARTICLE TARGET GENERATOR
+        function calculateTargetsAndPool() {
+            const tempC = document.createElement('canvas');
+            const tempCtx = tempC.getContext('2d', { willReadFrequently: true });
+            tempC.width = introW; 
+            tempC.height = introH;
+            
+            // Adjust sizes for mobile vs desktop for optimal legibility
+            let fontSize = isMobile ? Math.min(24, introW * 0.07) : 34;
+            let lineHeight = fontSize * 1.6;
+            let startY = introH/2 - (introTexts.length * lineHeight)/2 + fontSize/2;
+            
+            allTextTargetsList = [];
+            let totalCumulativeTextTargets = 0;
+
+            // Density setting: sampleStep 1 means every single pixel, 2 means every other pixel.
+            // Using 1 for ultra-dense solid text, with a safety limit to avoid crashing slow phones.
+            let step = isMobile ? 2 : 1; 
+
+            // Calculate targets for EACH text line separately
+            introTexts.forEach((line, i) => {
+                tempCtx.clearRect(0, 0, introW, introH);
+                tempCtx.font = `bold ${fontSize}px Inter, sans-serif`;
+                tempCtx.fillStyle = 'white';
+                tempCtx.textAlign = 'center';
+                tempCtx.textBaseline = 'middle';
+                tempCtx.fillText(line, introW/2, startY + i * lineHeight);
+                
+                // Optimized sampling: only scan the band where text was rendered
+                let yStart = Math.floor(startY + i * lineHeight - fontSize);
+                let yEnd = Math.ceil(startY + i * lineHeight + fontSize);
+                if (yStart < 0) yStart = 0;
+                let sampleHeight = yEnd - yStart;
+                
+                let imgData = tempCtx.getImageData(0, yStart, introW, sampleHeight).data;
+                let targets = [];
+                
+                for(let y=0; y<sampleHeight; y+=step) {
+                    for(let x=0; x<introW; x+=step) {
+                        if(imgData[(y*introW + x)*4 + 3] > 128) { // If pixel is solid
+                            targets.push({x: x, y: y + yStart});
+                        }
+                    }
+                }
+                allTextTargetsList.push(targets);
+                totalCumulativeTextTargets += targets.length;
+            });
+            
+            // Calculate Heart Outline Targets (Strictly hollow contour, highly dense)
+            heartTargetsList = [];
+            let hScale = isMobile ? Math.min(introW, introH)/35 : Math.min(introW, introH)/45;
+            
+            // We want thousands of points just for the outline to make it very thick and visible
+            let heartOutlineDensityCount = isMobile ? 8000 : 15000; 
+            
+            for(let i=0; i<heartOutlineDensityCount; i++) {
+                // Parametric heart equation
+                let t = (i/heartOutlineDensityCount) * Math.PI * 2;
+                let hx = 16 * Math.pow(Math.sin(t), 3);
+                let hy = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
+                
+                // Add slight organic noise (thickness) to the line itself
+                let noiseRadius = Math.random() * (isMobile ? 2.0 : 3.5); 
+                let noiseAngle = Math.random() * Math.PI * 2;
+                
+                heartTargetsList.push({
+                    x: introW/2 + hx * hScale + Math.cos(noiseAngle)*noiseRadius,
+                    y: introH/2 - hy * hScale + Math.sin(noiseAngle)*noiseRadius - (introH*0.05)
+                });
+            }
+            
+            // The required particle count MUST cover the absolute maximum targets ever needed
+            // Because the text accumulates (1+2+3+4+5+6), we need `totalCumulativeTextTargets`
+            let maxRequired = Math.max(totalCumulativeTextTargets, heartTargetsList.length);
+            let poolSize = Math.ceil(maxRequired * 1.15); // 15% safety margin
+            
+            // Generate EXACTLY this number of particles, they will never be destroyed or added to.
+            introParticles = [];
+            for(let p=0; p<poolSize; p++) {
+                introParticles.push({
+                    x: Math.random() * introW,
+                    y: Math.random() * introH,
+                    vx: 0, vy: 0,
+                    tx: 0, ty: 0,
+                    driftA: Math.random() * Math.PI * 2,
+                    driftS: Math.random() * 0.1 + 0.02, // VERY SLOW cosmic drift
+                    mode: 'wander', // Default chaotic state
+                    opacity: 1, 
+                    z: Math.random() * 1.5 + 0.5 // Subtle parallax
+                });
+            }
+        }
+
+        // Initialize targets when fonts are guaranteed to be loaded
+        document.fonts.ready.then(() => {
+            calculateTargetsAndPool();
+            requestAnimationFrame(renderIntro);
+        });
+
+        // 2. STATE MACHINE ADVANCEMENT
+        function handleIntroStateChange() {
+            if (!canTap) return;
+            introStateIndex++;
+
+            let pIndex = 0; // Track which particles in the pool have been assigned
+
+            if (introStateIndex >= 1 && introStateIndex <= 6) {
+                // TOUCH 1-6: Cumulative text formation
+                activeTextCount = introStateIndex;
+                
+                // Assign targets for all active texts
+                for (let i = 0; i < activeTextCount; i++) {
+                    let targets = allTextTargetsList[i];
+                    for (let j = 0; j < targets.length; j++) {
+                        if (pIndex < introParticles.length) {
+                            introParticles[pIndex].tx = targets[j].x;
+                            introParticles[pIndex].ty = targets[j].y;
+                            introParticles[pIndex].mode = 'text';
+                            pIndex++;
+                        }
+                    }
+                }
+                
+                // Remaining particles are pushed gently away from the center (creating negative space)
+                for (; pIndex < introParticles.length; pIndex++) {
+                    introParticles[pIndex].mode = 'drift_away';
+                }
+            }
+            else if (introStateIndex === 7) {
+                // TOUCH 7: All particles converge to exact center
+                canTap = false; // Lock tapping until convergence is mostly complete
+                for(let j=0; j<introParticles.length; j++) {
+                    introParticles[j].tx = introW / 2;
+                    introParticles[j].ty = introH / 2;
+                    introParticles[j].mode = 'converge';
+                }
+                
+                // Check convergence in render loop to unlock tap, but for safety unlock after 3s
+                setTimeout(() => { canTap = true; }, 3000);
+            }
+            else if (introStateIndex === 8) {
+                // TOUCH 8: Massive Big Bang
+                canTap = false; // Lock until settled
+                for(let j=0; j<introParticles.length; j++) {
+                    introParticles[j].mode = 'big_bang';
+                    let a = Math.random() * Math.PI * 2;
+                    // Extreme radial explosion pushing beyond edges
+                    let v = Math.random() * (isMobile ? 30 : 50) + 10; 
+                    introParticles[j].vx = Math.cos(a) * v;
+                    introParticles[j].vy = Math.sin(a) * v;
+                }
+                // Unlock safely when settled (physics checks it too, but fallback timer)
+                setTimeout(() => { canTap = true; }, 2500);
+            }
+            else if (introStateIndex === 9) {
+                // TOUCH 9: Form heart outline and fade in HTML text
+                canTap = false;
+                
+                // Shuffle heart targets so it fills organically
+                let shuffledHeart = [...heartTargetsList].sort(() => 0.5 - Math.random());
+                
+                for(let j=0; j<introParticles.length; j++) {
+                    if (j < shuffledHeart.length) {
+                        let t = shuffledHeart[j];
+                        introParticles[j].tx = t.x;
+                        introParticles[j].ty = t.y;
+                        introParticles[j].mode = 'heart';
+                    } else {
+                        // Extra particles act as very slow, sparse outer cosmic stars
+                        introParticles[j].mode = 'wander'; 
+                        // Scatter them to ensure they aren't inside the heart
+                        if(Math.hypot(introParticles[j].x - introW/2, introParticles[j].y - introH/2) < 200) {
+                            introParticles[j].x = introW/2 + (Math.random()-0.5)*introW*1.5;
+                            introParticles[j].y = introH/2 + (Math.random()-0.5)*introH*1.5;
+                        }
+                    }
+                }
+                
+                setTimeout(() => {
+                    document.getElementById('heart-text-container').style.opacity = '1';
+                    canTap = true;
+                }, 2000);
+            }
+            else if (introStateIndex === 10) {
+                // TOUCH 10: Trigger Cloud Transition to Main Site
+                canTap = false;
+                document.getElementById('heart-text-container').style.opacity = '0';
+                
+                // Very slow particle light fade out
+                for(let j=0; j<introParticles.length; j++) {
+                    introParticles[j].mode = 'fade_out';
+                }
+                
+                setTimeout(() => {
+                    startCloudTransition('right-to-left');
+                }, 1000);
+            }
+        }
+
+        // START BUTTON LISTENER
+        document.getElementById('btn-start-intro').addEventListener('click', () => {
+            const popup = document.getElementById('music-popup');
+            const audioEl = document.getElementById('reflection-audio');
+            
+            try {
+                audioEl.volume = 0.5;
+                let playPromise = audioEl.play();
+                if(playPromise !== undefined) {
+                    playPromise.then(() => { isMusicPlaying = true; }).catch(e => console.warn(e));
+                }
+            } catch(e) {}
+
+            popup.style.opacity = '0';
+            setTimeout(() => {
+                popup.remove();
+                // We are now in chaotic space (touch 0)
+            }, 1500);
+        });
+
+        // SCREEN TOUCH LISTENER (MANDATORY EXPLICIT TRIGGERS)
+        document.getElementById('intro-click-layer').addEventListener('pointerdown', (e) => {
+            handleIntroStateChange();
+        });
+
+        // 3. MAIN INTRO RENDER LOOP
+        function renderIntro() {
+            if(introStateIndex >= 11) return; // Halt entirely once transitioned to main site
+            requestAnimationFrame(renderIntro);
+
+            let time = Date.now();
+            let heartPulse = 1.0;
+            // Heartbeat scale: slow, very subtle pulse
+            if (introStateIndex === 9) {
+                heartPulse = 1.0 + Math.sin(time * 0.002) * 0.03; 
+            }
+
+            // Dark space with slight motion blur (alpha 0.3)
+            introCtx.fillStyle = 'rgba(0, 0, 0, 0.3)'; 
+            introCtx.fillRect(0, 0, introW, introH);
+
+            introCtx.fillStyle = '#ffffff';
+            // Size mapping for density visualization
+            let particleSize = isMobile ? 1.0 : 1.5;
+
+            // Render all particles based on their assigned mode
+            introParticles.forEach(p => {
+                
+                if (p.mode === 'fade_out') {
+                    p.opacity -= 0.01;
+                    if(p.opacity < 0) p.opacity = 0;
+                    // maintain slow wander
+                    p.x += Math.cos(p.driftA) * p.driftS;
+                    p.y += Math.sin(p.driftA) * p.driftS;
+                }
+                else if (p.mode === 'wander') {
+                    // Very slow drift
+                    p.driftA += (Math.random()-0.5)*0.02;
+                    p.x += Math.cos(p.driftA) * (p.driftS / p.z);
+                    p.y += Math.sin(p.driftA) * (p.driftS / p.z);
+                    if(p.x < 0) p.x = introW; if(p.x > introW) p.x = 0;
+                    if(p.y < 0) p.y = introH; if(p.y > introH) p.y = 0;
+                } 
+                else if (p.mode === 'drift_away') {
+                    // Drift, but gently push away from center to create negative space for text
+                    p.driftA += (Math.random()-0.5)*0.02;
+                    p.x += Math.cos(p.driftA) * (p.driftS / p.z);
+                    p.y += Math.sin(p.driftA) * (p.driftS / p.z);
+                    
+                    let dx = p.x - introW/2;
+                    let dy = p.y - introH/2;
+                    let dist = Math.hypot(dx, dy);
+                    let excludeRadius = isMobile ? 180 : 250;
+                    
+                    if (dist < excludeRadius) {
+                        p.x += (dx/dist) * 0.5; // push outward
+                        p.y += (dy/dist) * 0.5;
+                    }
+                    
+                    if(p.x < 0) p.x = introW; if(p.x > introW) p.x = 0;
+                    if(p.y < 0) p.y = introH; if(p.y > introH) p.y = 0;
+                }
+                else if (p.mode === 'text') {
+                    // Smooth, slow interpolation to target
+                    let dx = p.tx - p.x;
+                    let dy = p.ty - p.y;
+                    p.vx += dx * 0.005; // very soft spring
+                    p.vy += dy * 0.005;
+                    p.vx *= 0.85; // high friction
+                    p.vy *= 0.85;
+                    p.x += p.vx;
+                    p.y += p.vy;
+                } 
+                else if (p.mode === 'converge') {
+                    let dx = p.tx - p.x;
+                    let dy = p.ty - p.y;
+                    // Very slow convergence to single point
+                    p.vx += dx * 0.002; 
+                    p.vy += dy * 0.002;
+                    p.vx *= 0.90;
+                    p.vy *= 0.90;
+                    p.x += p.vx; 
+                    p.y += p.vy;
+                    
+                    // Auto-unlock logic if convergence is tight
+                    if (!canTap && Math.abs(dx) < 2 && Math.abs(dy) < 2) {
+                        canTap = true;
+                    }
+                } 
+                else if (p.mode === 'big_bang') {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vx *= 0.96; // slow decay for long travel
+                    p.vy *= 0.96;
+                    
+                    // Switch to slow chaotic wander when slow enough
+                    if (Math.abs(p.vx) < 0.1 && Math.abs(p.vy) < 0.1) {
+                        p.mode = 'wander'; 
+                        p.driftS = Math.random() * 0.1 + 0.02; // very slow
+                    }
+                }
+                else if (p.mode === 'heart') {
+                    // Pulse logic: target scales from center
+                    let dx = p.tx - introW/2;
+                    let dy = p.ty - introH/2;
+                    let currentTx = introW/2 + dx * heartPulse;
+                    let currentTy = introH/2 + dy * heartPulse;
+
+                    // Spring to pulsing target
+                    let dX = currentTx - p.x;
+                    let dY = currentTy - p.y;
+                    p.vx += dX * 0.008; 
+                    p.vy += dY * 0.008;
+                    p.vx *= 0.85; 
+                    p.vy *= 0.85;
+                    p.x += p.vx;
+                    p.y += p.vy;
+                }
+
+                // Render particle
+                if (p.opacity > 0.01) {
+                    introCtx.globalAlpha = p.opacity / p.z; 
+                    let size = particleSize / p.z;
+                    introCtx.fillRect(p.x, p.y, size, size);
+                }
+            });
+        }
+
+        // 4. CLOUD TRANSITION ENGINE (Perlin/Simplex feel via overlapping gradients)
+        function startCloudTransition(direction) {
+            const cloudCanvas = document.getElementById('cloud-canvas');
+            const cCtx = cloudCanvas.getContext('2d', { alpha: true });
+            
+            let cW = window.innerWidth;
+            let cH = window.innerHeight;
+            cloudCanvas.width = cW;
+            cloudCanvas.height = cH;
+            
+            // Create lots of organic "puffs" that overlap to form the cloud mask
+            let puffs = [];
+            let puffCount = isMobile ? 60 : 100;
+            
+            for(let i=0; i<puffCount; i++) {
+                let p = {
+                    r: Math.random()*300 + 150,
+                    opacity: 0,
+                    targetOpacity: Math.random()*0.6 + 0.4
+                };
+                
+                if (direction === 'right-to-left') {
+                    p.x = cW + Math.random()*600;
+                    p.y = Math.random()*cH;
+                    p.vx = -(Math.random()*6 + 3); // Move left
+                    p.vy = (Math.random()-0.5)*1;
+                } 
+                else if (direction === 'bottom-to-top') {
+                    p.x = Math.random()*cW;
+                    p.y = cH + Math.random()*600;
+                    p.vx = (Math.random()-0.5)*1.5;
+                    p.vy = -(Math.random()*6 + 3); // Move up
+                }
+                
+                puffs.push(p);
+            }
+
+            let phase = "cover"; // cover -> hold -> reveal -> done
+            let holdTimer = 0;
+            let globalCloudAlpha = 0; // Solid background alpha
+
+            function renderCloud() {
+                if (phase === "done") return;
+                requestAnimationFrame(renderCloud);
+                
+                cCtx.clearRect(0, 0, cW, cH);
+                
+                if (phase === "cover") {
+                    let allCrossed = true;
+                    puffs.forEach(p => {
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.r += 0.8; // Grow slightly
+                        if (p.opacity < p.targetOpacity) p.opacity += 0.008;
+                        
+                        // Check if covered
+                        if (direction === 'right-to-left' && p.x > -p.r) allCrossed = false;
+                        if (direction === 'bottom-to-top' && p.y > -p.r) allCrossed = false;
+                    });
+
+                    // Gradually darken the global background
+                    globalCloudAlpha += 0.008;
+                    if(globalCloudAlpha > 1) globalCloudAlpha = 1;
+                    
+                    if (globalCloudAlpha >= 1 && allCrossed) {
+                        phase = "hold";
+                        holdTimer = Date.now();
+                        
+                        // --- SCENE SWITCH HELD BEHIND CURTAIN ---
+                        if (direction === 'right-to-left') {
+                            // Intro -> Main Site
+                            document.documentElement.classList.remove('intro-active');
+                            document.body.classList.remove('intro-active');
+                            document.documentElement.style.overflow = '';
+                            document.body.style.overflow = '';
+                            document.getElementById('intro-click-layer').style.pointerEvents = 'none';
+                            document.getElementById('cinematic-intro').style.display = 'none'; 
+                            introStateIndex = 11; // Kill particle loop entirely
+                            startExperience(false); // Prepare main site
+                        } else {
+                            // Main Site -> Final Outro
+                            document.querySelector('.app-container').style.display = 'none';
+                            document.getElementById('bg-canvas').style.display = 'none';
+                            document.getElementById('particle-canvas').style.display = 'none';
+                            
+                            const outroScreen = document.getElementById('cinematic-outro');
+                            outroScreen.style.display = 'flex';
+                            initOutroStars();
+                        }
+                    }
+                } 
+                else if (phase === "hold") {
+                    // Short hold to let scene establish behind cloud
+                    if (Date.now() - holdTimer > 600) {
+                        phase = "reveal";
+                    }
+                }
+                else if (phase === "reveal") {
+                    // Cloud clears, revealing the new scene perfectly
+                    globalCloudAlpha -= 0.006;
+                    puffs.forEach(p => {
+                        p.x += p.vx * 0.5; // slow down drift
+                        p.y += p.vy * 0.5;
+                        p.opacity -= 0.008;
+                    });
+                    
+                    if (globalCloudAlpha <= 0) {
+                        phase = "done";
+                        if (direction === 'bottom-to-top') {
+                            // Trigger final text blur reveal
+                            document.getElementById('outro-text').classList.add('outro-sharp');
+                        }
+                    }
+                }
+                
+                // Draw global dark background (acting as solid curtain)
+                // For main site, reveal website background tone slightly before full clear
+                let bgAlpha = globalCloudAlpha;
+                if(phase === 'reveal' && direction === 'right-to-left') {
+                    // Mix in some dark purple/black mimicking the main site background
+                    cCtx.fillStyle = `rgba(5, 2, 8, ${Math.max(0, bgAlpha)})`;
+                } else {
+                    cCtx.fillStyle = `rgba(0, 0, 0, ${Math.max(0, bgAlpha)})`;
+                }
+                cCtx.fillRect(0, 0, cW, cH);
+                
+                // Draw puffs for organic edges (using radial gradients to simulate noise)
+                puffs.forEach(p => {
+                    if (p.opacity <= 0) return;
+                    let grad = cCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+                    grad.addColorStop(0, `rgba(15, 15, 15, ${p.opacity})`);
+                    grad.addColorStop(0.5, `rgba(5, 5, 5, ${p.opacity * 0.7})`);
+                    grad.addColorStop(1, `rgba(0, 0, 0, 0)`);
+                    
+                    cCtx.fillStyle = grad;
+                    cCtx.beginPath();
+                    cCtx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+                    cCtx.fill();
+                });
+            }
+            renderCloud();
+        }
+
+        // 5. FINAL OUTRO STARS SYSTEM (Pure black, sparse, very slow)
+        function initOutroStars() {
+            const canvas = document.getElementById('outro-stars-canvas');
+            const ctx = canvas.getContext('2d');
+            let w = window.innerWidth;
+            let h = window.innerHeight;
+            canvas.width = w;
+            canvas.height = h;
+
+            let stars = [];
+            for(let i=0; i<150; i++) {
+                stars.push({
+                    x: Math.random() * w,
+                    y: Math.random() * h,
+                    r: Math.random() * 1.0 + 0.2, // very small
+                    vx: (Math.random() - 0.5) * 0.05, // extremely slow
+                    vy: (Math.random() - 0.5) * 0.05,
+                    alpha: Math.random() * 0.5 + 0.1,
+                    pulseSpeed: Math.random() * 0.02 + 0.005
+                });
+            }
+
+            function drawStars() {
+                ctx.clearRect(0, 0, w, h); // Clear, background is already black via CSS
+                stars.forEach(s => {
+                    s.x += s.vx;
+                    s.y += s.vy;
+                    if(s.x < 0) s.x = w; if(s.x > w) s.x = 0;
+                    if(s.y < 0) s.y = h; if(s.y > h) s.y = 0;
+                    
+                    s.alpha += Math.sin(Date.now() * s.pulseSpeed) * 0.005; // faint pulse
+                    if(s.alpha < 0.1) s.alpha = 0.1;
+                    if(s.alpha > 0.8) s.alpha = 0.8;
+                    
+                    // Optional: keep text area slightly clearer
+                    let distToCenter = Math.hypot(s.x - w/2, s.y - h/2);
+                    let finalAlpha = distToCenter < 150 ? s.alpha * 0.3 : s.alpha;
+
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${finalAlpha})`;
+                    ctx.fill();
+                });
+                requestAnimationFrame(drawStars);
+            }
+            drawStars();
+
+            window.addEventListener('resize', () => {
+                w = window.innerWidth;
+                h = window.innerHeight;
+                canvas.width = w;
+                canvas.height = h;
+            });
+        }
+
+        // TRIGGER FOR FINAL TRANSITION
+        function startFinalOutro() {
+            // Lock UI and start transition
+            document.body.style.overflow = 'hidden';
+            
+            // Fade out main audio gently
+            const audioEl = document.getElementById('reflection-audio');
+            if (isMusicPlaying) {
+                let vol = audioEl.volume;
+                let fadeOutAudio = setInterval(() => {
+                    vol -= 0.05;
+                    if (vol <= 0.1) { vol = 0.1; clearInterval(fadeOutAudio); }
+                    audioEl.volume = Math.max(0, vol);
+                }, 200);
+            }
+            
+            startCloudTransition('bottom-to-top');
+        }
+    </script>
+
+    <script>
+        // MAIN SITE FLOATING BACKGROUND PARTICLES
+        const pCanvas = document.getElementById('particle-canvas');
+        const pCtx = pCanvas.getContext('2d');
+        let bgParticles = [];
+
+        function resizeParticleCanvas() {
+            pCanvas.width = window.innerWidth;
+            pCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeParticleCanvas);
+        resizeParticleCanvas();
+
+        function createBgParticle() {
+            return {
+                x: Math.random() * pCanvas.width,
+                y: Math.random() * pCanvas.height,
+                size: Math.random() * 2.2 + 0.6,
+                speedY: Math.random() * 0.4 + 0.1,
+                speedX: (Math.random() - 0.5) * 0.3,
+                opacity: Math.random() * 0.6 + 0.2,
+                color: Math.random() > 0.4 ? '#f7d070' : '#f393b4'
+            };
+        }
+
+        for (let i = 0; i < 50; i++) bgParticles.push(createBgParticle());
+
+        function animateBgParticles() {
+            pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+            bgParticles.forEach((p, idx) => {
+                p.y -= p.speedY;
+                p.x += p.speedX;
+                if (p.y < 0) {
+                    bgParticles[idx] = createBgParticle();
+                    bgParticles[idx].y = pCanvas.height + 10;
+                }
+                pCtx.beginPath();
+                pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                pCtx.fillStyle = p.color;
+                pCtx.globalAlpha = p.opacity;
+                pCtx.shadowBlur = 8;
+                pCtx.shadowColor = p.color;
+                pCtx.fill();
+            });
+            requestAnimationFrame(animateBgParticles);
+        }
+        animateBgParticles();
+
+        // MAIN SITE BACKGROUND COLOR SCROLL UPDATE
+        const bgLayers = document.querySelectorAll('.bg-layer');
+        const sections = document.querySelectorAll('section');
+
+        function updateBackground() {
+            let currentSectionIndex = 0;
+            let minDistance = Infinity;
+
+            sections.forEach((sec, index) => {
+                const rect = sec.getBoundingClientRect();
+                const distance = Math.abs(rect.top - window.innerHeight / 2);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    currentSectionIndex = index;
+                }
+            });
+
+            bgLayers.forEach((layer, index) => {
+                layer.style.opacity = index === currentSectionIndex ? '1' : '0';
+            });
+        }
+        window.addEventListener('scroll', updateBackground, { passive: true });
+
+        // MAIN SITE INITIALIZATION (Called from Cloud Reveal phase)
+        let isMusicPlaying = false;
+        function toggleMusic() {
+            const btn = document.getElementById('music-toggle');
+            const icon = btn.querySelector('i');
+            const audioEl = document.getElementById('reflection-audio');
+            
+            if (isMusicPlaying) {
+                audioEl.pause();
+                icon.classList.replace('fa-music', 'fa-volume-mute');
+                icon.classList.add('text-white/50');
+                isMusicPlaying = false;
+            } else {
+                let playPromise = audioEl.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(e => console.warn(e));
+                }
+                icon.classList.replace('fa-volume-mute', 'fa-music');
+                icon.classList.remove('text-white/50');
+                isMusicPlaying = true;
+            }
+        }
+
+        function startExperience(isBypass) {
+            const toggleBtn = document.getElementById('music-toggle');
+            toggleBtn.classList.remove('hidden');
+            setTimeout(() => toggleBtn.classList.remove('opacity-0'), 100);
+            toggleBtn.addEventListener('click', toggleMusic);
+            
+            initScrollObserver();
+            initLetterDrag();
+            init3DCake();
+            init3DGifts();
+            updateBackground();
+        }
+
+        function initScrollObserver() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.querySelectorAll('.fade-in-scroll').forEach(el => el.classList.add('visible'));
+                    }
+                });
+            }, { threshold: 0.2 });
+            sections.forEach(sec => observer.observe(sec));
+        }
+
+        // LETTER DRAG LOGIC
+        function initLetterDrag() {
+            const letter = document.getElementById('drag-letter');
+            const wrapper = document.getElementById('envelope-wrap');
+            let startY = 0;
+            let currentY = -30;
+            let isDragging = false;
+            let isOpened = false;
+
+            letter.addEventListener('touchstart', e => {
+                if(isOpened) return;
+                startY = e.touches[0].clientY;
+                isDragging = true;
+                letter.style.transition = 'none';
+                wrapper.style.transform = 'rotateX(10deg) rotateY(0deg) scale(1.05)';
+            }, {passive: false});
+
+            letter.addEventListener('touchmove', e => {
+                if (!isDragging || isOpened) return;
+                // preventDefault ONLY when actively dragging the letter on mobile, prevents page scroll conflict
+                e.preventDefault(); 
+                const deltaY = e.touches[0].clientY - startY;
+                if (deltaY < 0) {
+                    let newY = -30 + deltaY;
+                    letter.style.transform = `translateY(${newY}px)`;
+                    currentY = newY;
+                }
+            }, {passive: false});
+
+            letter.addEventListener('touchend', () => {
+                if (!isDragging || isOpened) return;
+                isDragging = false;
+                if (currentY < -130) openLetter();
+                else {
+                    letter.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                    letter.style.transform = `translateY(-30px)`;
+                    wrapper.style.transform = 'rotateX(12deg) rotateY(-6deg) rotateZ(-1deg)';
+                    currentY = -30;
+                }
+            });
+
+            letter.addEventListener('mousedown', e => {
+                if(isOpened) return;
+                startY = e.clientY;
+                isDragging = true;
+                letter.style.transition = 'none';
+                wrapper.style.transform = 'rotateX(10deg) rotateY(0deg) scale(1.05)';
+            });
+            window.addEventListener('mousemove', e => {
+                if (!isDragging || isOpened) return;
+                const deltaY = e.clientY - startY;
+                if (deltaY < 0) {
+                    let newY = -30 + deltaY;
+                    letter.style.transform = `translateY(${newY}px)`;
+                    currentY = newY;
+                }
+            });
+            window.addEventListener('mouseup', () => {
+                if (!isDragging || isOpened) return;
+                isDragging = false;
+                if (currentY < -130) openLetter();
+                else {
+                    letter.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                    letter.style.transform = `translateY(-30px)`;
+                    wrapper.style.transform = 'rotateX(12deg) rotateY(-6deg) rotateZ(-1deg)';
+                    currentY = -30;
+                }
+            });
+
+            function openLetter() {
+                isOpened = true;
+                letter.classList.add('reading');
+                letter.style.transform = ''; 
+                wrapper.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+                document.querySelector('.drag-hint').style.display = 'none';
+            }
+        }
+
+        // NOTIFICATION LOGIC
+        function showLockedNotification() {
+            const modal = document.getElementById('locked-gift-modal');
+            const card = document.getElementById('locked-notif-card');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                card.classList.remove('scale-90');
+                card.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeLockedNotification() {
+            const modal = document.getElementById('locked-gift-modal');
+            const card = document.getElementById('locked-notif-card');
+            modal.classList.add('opacity-0');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-90');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        // TEXTURE HELPERS
+        function createButtercreamBumpTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024; canvas.height = 1024;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#808080'; ctx.fillRect(0, 0, 1024, 1024);
+            const imgData = ctx.getImageData(0, 0, 1024, 1024);
+            const data = imgData.data;
+            for (let i = 0; i < data.length; i += 4) {
+                const x = (i / 4) % 1024;
+                const y = Math.floor((i / 4) / 1024);
+                const swirl = Math.sin(x * 0.05 + Math.sin(y * 0.02) * 5) * 10;
+                const noise = (Math.random() - 0.5) * 15;
+                const val = Math.min(255, Math.max(0, 128 + noise + swirl));
+                data[i] = val; data[i+1] = val; data[i+2] = val;
+            }
+            ctx.putImageData(imgData, 0, 0);
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping;
+            tex.repeat.set(2, 2); return tex;
+        }
+
+        function createLuxuryPaperBump() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512; canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#808080'; ctx.fillRect(0, 0, 512, 512);
+            ctx.fillStyle = '#888888';
+            for(let i=0; i<512; i+=4) { ctx.fillRect(i, 0, 1, 512); ctx.fillRect(0, i, 512, 1); }
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping;
+            tex.repeat.set(4, 4); return tex;
+        }
+
+        function createFlameTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 64; canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            const grad = ctx.createRadialGradient(32, 95, 2, 32, 80, 38);
+            grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+            grad.addColorStop(0.15, 'rgba(255, 220, 100, 0.95)');
+            grad.addColorStop(0.4, 'rgba(255, 120, 20, 0.85)');
+            grad.addColorStop(0.7, 'rgba(200, 40, 0, 0.4)');
+            grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(32, 5);
+            ctx.bezierCurveTo(10, 55, 14, 110, 32, 122);
+            ctx.bezierCurveTo(50, 110, 54, 55, 32, 5); ctx.fill();
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function createSmokeTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 64; canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 30);
+            grad.addColorStop(0, 'rgba(200, 200, 200, 0.3)');
+            grad.addColorStop(0.5, 'rgba(150, 150, 150, 0.1)');
+            grad.addColorStop(1, 'rgba(50, 50, 50, 0)');
+            ctx.fillStyle = grad; ctx.fillRect(0,0,64,64);
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        // CAKE SYSTEM
+        function init3DCake() {
+            const container = document.getElementById('three-canvas-container');
+            if(!container) return;
+
+            const scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x020104, 0.025);
+            const camera = new THREE.PerspectiveCamera(36, container.clientWidth / container.clientHeight, 0.1, 100);
+            camera.position.set(0, 8, 22); camera.lookAt(new THREE.Vector3(0, 2.2, 0)); 
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
+            renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1;
+            container.appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0x1a0802, 0.02); scene.add(ambientLight);
+            const keyLight = new THREE.DirectionalLight(0xffe6c8, 0.0);
+            keyLight.position.set(8, 14, 8); keyLight.castShadow = true;
+            keyLight.shadow.mapSize.width = 2048; keyLight.shadow.mapSize.height = 2048; keyLight.shadow.bias = -0.0005;
+            scene.add(keyLight);
+            const fillLight = new THREE.DirectionalLight(0x80a0c0, 0.0); fillLight.position.set(-9, 7, -5); scene.add(fillLight);
+            const rimLight = new THREE.DirectionalLight(0xffd8a8, 0.0); rimLight.position.set(0, 10, -10); scene.add(rimLight);
+
+            const cakeGroup = new THREE.Group(); cakeGroup.position.set(0, -2.5, 0); scene.add(cakeGroup);
+            const buttercreamBumpTex = createButtercreamBumpTexture();
+            const darkChocolateMat = new THREE.MeshPhysicalMaterial({ color: 0x1A0905, roughness: 0.3, metalness: 0.1, bumpMap: buttercreamBumpTex, bumpScale: 0.02, clearcoat: 0.2, clearcoatRoughness: 0.4, sheen: new THREE.Color(0x3A1910), sheenRoughness: 0.6 });
+            const richCreamMat = new THREE.MeshPhysicalMaterial({ color: 0xFDF4E3, roughness: 0.8, metalness: 0.0, bumpMap: buttercreamBumpTex, bumpScale: 0.04, clearcoat: 0.05, sheen: new THREE.Color(0xFFFFFF) });
+            const plateMat = new THREE.MeshPhysicalMaterial({ color: 0x0a0a0a, roughness: 0.1, metalness: 0.8, clearcoat: 1.0 });
+            const goldRimMat = new THREE.MeshStandardMaterial({ color: 0xD4AF37, metalness: 1.0, roughness: 0.15 });
+
+            const plateBase = new THREE.Mesh(new THREE.CylinderGeometry(4.6, 4.8, 0.2, 64), plateMat); plateBase.position.y = 0.1; plateBase.receiveShadow = true; plateBase.castShadow = true; cakeGroup.add(plateBase);
+            const plateRim = new THREE.Mesh(new THREE.TorusGeometry(4.7, 0.08, 16, 64), goldRimMat); plateRim.position.y = 0.1; plateRim.rotation.x = Math.PI / 2; plateRim.receiveShadow = true; plateRim.castShadow = true; cakeGroup.add(plateRim);
+
+            const tier1Radius = 3.6; const tier1Height = 2.2;
+            const tier1 = new THREE.Mesh(new THREE.CylinderGeometry(tier1Radius, tier1Radius+0.05, tier1Height, 64), darkChocolateMat); tier1.position.y = 0.2 + tier1Height/2; tier1.castShadow = true; tier1.receiveShadow = true; cakeGroup.add(tier1);
+            for(let i=0; i<25; i++) {
+                const angle = (i / 25) * Math.PI * 2 + (Math.random() * 0.1); const length = 0.3 + Math.random() * 0.7; const thickness = 0.08 + Math.random() * 0.06; 
+                const drip = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 8), richCreamMat);
+                drip.position.set(Math.cos(angle)*(tier1Radius-0.02), (tier1.position.y + tier1Height/2) - length/2, Math.sin(angle)*(tier1Radius-0.02));
+                drip.rotation.x = Math.sin(angle)*0.1; drip.rotation.z = -Math.cos(angle)*0.1;
+                const tip = new THREE.Mesh(new THREE.SphereGeometry(thickness, 8, 8), richCreamMat); tip.position.y = -length/2; drip.add(tip);
+                drip.castShadow = true; drip.receiveShadow = true; cakeGroup.add(drip);
+            }
+
+            const tier2Radius = 2.4; const tier2Height = 2.0;
+            const tier2 = new THREE.Mesh(new THREE.CylinderGeometry(tier2Radius, tier2Radius+0.05, tier2Height, 64), richCreamMat); tier2.position.y = tier1.position.y + tier1Height/2 + tier2Height/2; tier2.castShadow = true; tier2.receiveShadow = true; cakeGroup.add(tier2);
+            for(let i=0; i<18; i++) {
+                const angle = (i / 18) * Math.PI * 2 + (Math.random() * 0.1); const length = 0.3 + Math.random() * 0.7; const thickness = 0.08 + Math.random() * 0.06; 
+                const drip = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, length, 8), darkChocolateMat);
+                drip.position.set(Math.cos(angle)*(tier2Radius-0.02), (tier2.position.y + tier2Height/2) - length/2, Math.sin(angle)*(tier2Radius-0.02));
+                drip.rotation.x = Math.sin(angle)*0.1; drip.rotation.z = -Math.cos(angle)*0.1;
+                const tip = new THREE.Mesh(new THREE.SphereGeometry(thickness, 8, 8), darkChocolateMat); tip.position.y = -length/2; drip.add(tip);
+                drip.castShadow = true; drip.receiveShadow = true; cakeGroup.add(drip);
+            }
+            for(let i=0; i<32; i++) {
+                const angle = (i/32) * Math.PI * 2;
+                const piping = new THREE.Mesh(new THREE.SphereGeometry(0.25, 16, 16), richCreamMat); piping.position.set(Math.cos(angle)*(tier1Radius+0.1), 0.35, Math.sin(angle)*(tier1Radius+0.1)); piping.castShadow = true; piping.receiveShadow = true; cakeGroup.add(piping);
+            }
+
+            const candles = [];
+            const candlePositions = [ { x: -0.8, z: 0.6 }, { x: 0.8, z: 0.6 }, { x: 0.0, z: -0.9 }, { x: -1.0, z: -0.4 }, { x: 1.0, z: -0.4 } ];
+            const waxMat = new THREE.MeshPhysicalMaterial({ color: 0xFFF8E7, roughness: 0.3, transmission: 0.4 });
+            const flameMat = new THREE.SpriteMaterial({ map: createFlameTexture(), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false });
+            const smokeTexture = createSmokeTexture(); const smokeParticles = [];
+
+            candlePositions.forEach((pos) => {
+                const candleGroup = new THREE.Group(); candleGroup.position.set(pos.x, 4.38, pos.z);
+                const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.07, 0.9, 16), waxMat); stick.position.y = 0.45; stick.castShadow = true; stick.receiveShadow = true; candleGroup.add(stick);
+                const flameSprite = new THREE.Sprite(flameMat.clone()); flameSprite.position.set(0, 1.18, 0); flameSprite.scale.set(0.35, 0.7, 1.0); candleGroup.add(flameSprite);
+                const pLight = new THREE.PointLight(0xff8811, 3.5, 12, 1.5); pLight.position.set(0, 1.15, 0); pLight.castShadow = true; pLight.shadow.mapSize.width = 512; pLight.shadow.mapSize.height = 512; pLight.shadow.bias = -0.002; candleGroup.add(pLight);
+                const pLightFill = new THREE.PointLight(0xff4400, 2.5, 25, 1.5); pLightFill.position.set(pos.x * 4.0, -1.8, pos.z * 4.0); candleGroup.add(pLightFill);
+                cakeGroup.add(candleGroup);
+                candles.push({ group: candleGroup, light: pLight, fillLight: pLightFill, sprite: flameSprite, wickPos: new THREE.Vector3(pos.x, 5.38, pos.z), baseLightIntensity: 3.5 + Math.random()*0.5, baseFillIntensity: 2.8 + Math.random()*0.5, isLit: true, isExtinguishing: false, extinguishProgress: 0, flickerOffset: Math.random()*100 });
+            });
+
+            const mouseNDC = new THREE.Vector2(-999, -999);
+            function updatePointer(clientX, clientY) { const rect = container.getBoundingClientRect(); mouseNDC.x = ((clientX - rect.left) / rect.width) * 2 - 1; mouseNDC.y = -((clientY - rect.top) / rect.height) * 2 + 1; }
+            container.addEventListener('mousemove', (e) => updatePointer(e.clientX, e.clientY));
+            container.addEventListener('touchmove', (e) => { if (e.touches.length > 0) updatePointer(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+
+            function spawnSmoke(worldPos) {
+                for (let i = 0; i < 10; i++) {
+                    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: smokeTexture, transparent: true, opacity: 0.5, depthWrite: false }));
+                    sprite.position.copy(worldPos); sprite.scale.set(0.15, 0.15, 0.15); scene.add(sprite);
+                    smokeParticles.push({ sprite: sprite, velY: 0.015 + Math.random()*0.025, velX: (Math.random()-0.5)*0.01, velZ: (Math.random()-0.5)*0.01, life: 1.0, decay: 0.012 });
+                }
+            }
+
+            const clock = new THREE.Clock(); let allBlownOut = false; let darkPauseTimer = 0; let relightProgress = 0; let isRelighting = false;
+
+            function animate() {
+                requestAnimationFrame(animate); const time = clock.getElapsedTime();
+                candles.forEach(candle => {
+                    if (!candle.isLit || candle.isExtinguishing) return;
+                    const projected = candle.wickPos.clone().project(camera);
+                    const dist = Math.hypot(projected.x - mouseNDC.x, projected.y - mouseNDC.y);
+                    if (dist < 0.22) candle.isExtinguishing = true;
+                });
+
+                let litCount = 0;
+                candles.forEach((candle) => {
+                    if (candle.isLit) {
+                        if (candle.isExtinguishing) {
+                            candle.extinguishProgress += 0.04; const shrink = Math.max(0, 1 - candle.extinguishProgress);
+                            candle.sprite.scale.set(0.35 * shrink, 0.7 * shrink, 1.0); candle.light.intensity = candle.baseLightIntensity * shrink;
+                            if (candle.fillLight) candle.fillLight.intensity = candle.baseFillIntensity * shrink;
+                            if (candle.extinguishProgress >= 1.0) { candle.isLit = false; candle.sprite.visible = false; candle.light.intensity = 0; if (candle.fillLight) candle.fillLight.intensity = 0; spawnSmoke(candle.wickPos); }
+                        } else {
+                            litCount++; const t = time * 3.5 + candle.flickerOffset; const flickerStr = Math.sin(t * 5.1) * Math.sin(t * 7.7) * Math.cos(t * 2.3);
+                            candle.light.intensity = candle.baseLightIntensity + (flickerStr * 1.5); if (candle.fillLight) candle.fillLight.intensity = candle.baseFillIntensity + (flickerStr * 1.2);
+                            const mX = Math.sin(t * 4.2) * 0.02; const mY = Math.abs(Math.cos(t * 5.5)) * 0.015; const mZ = Math.cos(t * 3.8) * 0.02;
+                            candle.sprite.position.set(mX, 1.18 + mY, mZ); candle.light.position.set(mX, 1.15 + mY, mZ);
+                            if (candle.fillLight) { candle.fillLight.position.set((candle.wickPos.x * 4.0) + (mX * 5), -1.8 + mY, (candle.wickPos.z * 4.0) + (mZ * 5)); }
+                        }
+                    }
+                });
+
+                for (let i = smokeParticles.length - 1; i >= 0; i--) {
+                    const p = smokeParticles[i]; p.life -= p.decay; p.sprite.position.y += p.velY; p.sprite.position.x += p.velX; p.sprite.position.z += p.velZ; p.sprite.scale.addScalar(0.008); p.sprite.material.opacity = p.life * 0.4;
+                    if (p.life <= 0) { scene.remove(p.sprite); smokeParticles.splice(i, 1); }
+                }
+
+                if (litCount === 0 && !allBlownOut) { allBlownOut = true; darkPauseTimer = time; }
+                if (allBlownOut && !isRelighting && time - darkPauseTimer > 1.5) { isRelighting = true; relightProgress = 0; }
+                if (isRelighting && relightProgress < 1.0) {
+                    relightProgress += 0.003; 
+                    let p1 = Math.min(1, relightProgress / 0.25); let p2 = Math.max(0, Math.min(1, (relightProgress - 0.25) / 0.35)); let p3 = Math.max(0, Math.min(1, (relightProgress - 0.6) / 0.4));
+                    ambientLight.intensity = 0.02 + (p1 * 0.15); fillLight.intensity = p2 * 1.2; rimLight.intensity = p3 * 2.0; keyLight.intensity = p3 * 3.5;
+                    if (relightProgress >= 0.8) { const msg = document.getElementById('cake-success-msg'); if (msg) msg.classList.remove('opacity-0'); }
+                }
+                renderer.render(scene, camera);
+            }
+            window.addEventListener('resize', () => { if(!container) return; camera.aspect = container.clientWidth / container.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(container.clientWidth, container.clientHeight); });
+            animate();
+        }
+
+        // GIFTS SYSTEM
+        function init3DGifts() {
+            const container = document.getElementById('gifts-three-container');
+            if(!container) return;
+
+            const scene = new THREE.Scene(); scene.fog = new THREE.FogExp2(0x050208, 0.015);
+            const isMobile = window.innerWidth < 480; const aspect = container.clientWidth / container.clientHeight;
+            const targetCameraZ = isMobile ? 18 : 14; 
+            const camera = new THREE.PerspectiveCamera(38, aspect, 0.1, 100);
+            camera.position.set(0, 8.5, targetCameraZ); camera.lookAt(new THREE.Vector3(0, 1.5, 0));
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
+            renderer.setSize(container.clientWidth, container.clientHeight); renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.3;
+            container.appendChild(renderer.domElement);
+
+            scene.add(new THREE.AmbientLight(0x0a0510, 0.6));
+            const keyLight = new THREE.DirectionalLight(0xfff5e6, 4.0); keyLight.position.set(6, 12, 8); keyLight.castShadow = true; keyLight.shadow.mapSize.width = 2048; keyLight.shadow.mapSize.height = 2048; keyLight.shadow.bias = -0.0005; scene.add(keyLight);
+            const fillLight = new THREE.DirectionalLight(0x4a3b69, 2.5); fillLight.position.set(-8, 5, 2); scene.add(fillLight);
+            const rimLight = new THREE.SpotLight(0xd4af37, 5.0, 30, Math.PI/3, 0.5, 1.5); rimLight.position.set(0, 10, -10); rimLight.lookAt(0, 0, 0); scene.add(rimLight);
+
+            const groundPlane = new THREE.Mesh(new THREE.PlaneGeometry(50, 50), new THREE.MeshStandardMaterial({ color: 0x050208, roughness: 0.9, metalness: 0.1, depthWrite: false })); groundPlane.rotation.x = -Math.PI/2; groundPlane.receiveShadow = true; scene.add(groundPlane);
+            const dimPlane = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0, depthWrite: false })); dimPlane.position.z = -8; dimPlane.frustumCulled = false; camera.add(dimPlane); scene.add(camera);
+
+            const stepElevation = 1.6; const podium = new THREE.Mesh(new THREE.BoxGeometry(16, stepElevation, 6.5), new THREE.MeshStandardMaterial({ color: 0x07030b, roughness: 0.95, metalness: 0.05 })); podium.position.set(0, stepElevation/2, -2.2); podium.receiveShadow = true; scene.add(podium);
+            const giftsGroup = new THREE.Group(); scene.add(giftsGroup);
+
+            const boxConfigs = [
+                { boxColor: 0x4A0E1C, ribbonColor: 0xD4AF37, image: 'image1.png' },
+                { boxColor: 0x053A26, ribbonColor: 0xE5C158, image: 'image2.png' },
+                { boxColor: 0x2E0F4C, ribbonColor: 0xD4AF37, image: 'image3.png' },
+                { boxColor: 0x0A1931, ribbonColor: 0xE5C158, image: 'image4.png' }
+            ];
+            const paperBump = createLuxuryPaperBump(); const texLoader = new THREE.TextureLoader();
+            const boxes = []; let confettis = [];
+
+            function createPremiumBox(cfg, boxMat, ribbonMat, giftTex) {
+                const boxOuterGroup = new THREE.Group(); const baseGroup = new THREE.Group();
+                const thick = 0.04; const w = 1.8, h = 1.4, d = 1.8;
+                
+                const bottom = new THREE.Mesh(new THREE.BoxGeometry(w, thick, d), boxMat); bottom.position.y = thick/2; bottom.castShadow = true; bottom.receiveShadow = true; baseGroup.add(bottom);
+                const wallH = h; const wallY = h/2;
+                const leftWall = new THREE.Mesh(new THREE.BoxGeometry(thick, wallH, d), boxMat); leftWall.position.set(-w/2 + thick/2, wallY, 0); leftWall.castShadow = true; leftWall.receiveShadow = true; baseGroup.add(leftWall);
+                const rightWall = new THREE.Mesh(new THREE.BoxGeometry(thick, wallH, d), boxMat); rightWall.position.set(w/2 - thick/2, wallY, 0); rightWall.castShadow = true; rightWall.receiveShadow = true; baseGroup.add(rightWall);
+                const frontWall = new THREE.Mesh(new THREE.BoxGeometry(w - thick*2, wallH, thick), boxMat); frontWall.position.set(0, wallY, d/2 - thick/2); frontWall.castShadow = true; frontWall.receiveShadow = true; baseGroup.add(frontWall);
+                const backWall = new THREE.Mesh(new THREE.BoxGeometry(w - thick*2, wallH, thick), boxMat); backWall.position.set(0, wallY, -d/2 + thick/2); backWall.castShadow = true; backWall.receiveShadow = true; baseGroup.add(backWall);
+
+                const rW = 0.25; const rT = 0.015;
+                const zStrapFront = new THREE.Mesh(new THREE.BoxGeometry(rW, wallH, rT), ribbonMat); zStrapFront.position.set(0, wallY, d/2 + rT/2); baseGroup.add(zStrapFront);
+                const zStrapBack = new THREE.Mesh(new THREE.BoxGeometry(rW, wallH, rT), ribbonMat); zStrapBack.position.set(0, wallY, -d/2 - rT/2); baseGroup.add(zStrapBack);
+                const xStrapLeft = new THREE.Mesh(new THREE.BoxGeometry(rT, wallH, rW), ribbonMat); xStrapLeft.position.set(-w/2 - rT/2, wallY, 0); baseGroup.add(xStrapLeft);
+                const xStrapRight = new THREE.Mesh(new THREE.BoxGeometry(rT, wallH, rW), ribbonMat); xStrapRight.position.set(w/2 + rT/2, wallY, 0); baseGroup.add(xStrapRight);
+                boxOuterGroup.add(baseGroup);
+
+                const lidPivot = new THREE.Group(); lidPivot.position.set(-w/2, h, 0); 
+                const lidGroup = new THREE.Group(); lidGroup.position.set(w/2, 0, 0); 
+                const lW = w + 0.04; const lH = 0.4; const lD = d + 0.04;
+                const lidTop = new THREE.Mesh(new THREE.BoxGeometry(lW, thick, lD), boxMat); lidTop.position.y = lH - thick/2; lidTop.castShadow = true; lidTop.receiveShadow = true; lidGroup.add(lidTop);
+                const lWallY = lH/2 - thick/2; const lWallH = lH - thick;
+                const lidLeft = new THREE.Mesh(new THREE.BoxGeometry(thick, lWallH, lD), boxMat); lidLeft.position.set(-lW/2 + thick/2, lWallY, 0); lidGroup.add(lidLeft);
+                const lidRight = new THREE.Mesh(new THREE.BoxGeometry(thick, lWallH, lD), boxMat); lidRight.position.set(lW/2 - thick/2, lWallY, 0); lidGroup.add(lidRight);
+                const lidFront = new THREE.Mesh(new THREE.BoxGeometry(lW - thick*2, lWallH, thick), boxMat); lidFront.position.set(0, lWallY, lD/2 - thick/2); lidGroup.add(lidFront);
+                const lidBack = new THREE.Mesh(new THREE.BoxGeometry(lW - thick*2, lWallH, thick), boxMat); lidBack.position.set(0, lWallY, -lD/2 + thick/2); lidGroup.add(lidBack);
+                const lidStrapZ = new THREE.Mesh(new THREE.BoxGeometry(rW, thick+rT, lD+rT*2), ribbonMat); lidStrapZ.position.y = lH - thick/2; lidGroup.add(lidStrapZ);
+                const lidStrapX = new THREE.Mesh(new THREE.BoxGeometry(lW+rT*2, thick+rT, rW), ribbonMat); lidStrapX.position.y = lH - thick/2; lidGroup.add(lidStrapX);
+                
+                const bowGroup = new THREE.Group(); bowGroup.position.set(0, lH, 0);
+                const loopGeom = new THREE.TorusGeometry(0.3, 0.07, 16, 48); loopGeom.scale(1, 0.6, 1.2); 
+                const loop1 = new THREE.Mesh(loopGeom, ribbonMat); loop1.position.set(0.3, 0.05, 0); loop1.rotation.y = Math.PI/4; loop1.rotation.x = -Math.PI/8; loop1.castShadow = true; bowGroup.add(loop1);
+                const loop2 = new THREE.Mesh(loopGeom, ribbonMat); loop2.position.set(-0.3, 0.05, 0); loop2.rotation.y = -Math.PI/4; loop2.rotation.x = -Math.PI/8; loop2.castShadow = true; bowGroup.add(loop2);
+                const knot = new THREE.Mesh(new THREE.SphereGeometry(0.14, 32, 32), ribbonMat); knot.scale.set(1.2, 0.8, 1.3); knot.position.y = 0.02; knot.castShadow = true; bowGroup.add(knot);
+                const tailGeom = new THREE.BoxGeometry(0.2, 0.8, 0.02);
+                const tail1 = new THREE.Mesh(tailGeom, ribbonMat); tail1.position.set(0.2, -0.2, 0.2); tail1.rotation.x = Math.PI/6; tail1.rotation.z = -Math.PI/8; bowGroup.add(tail1);
+                const tail2 = new THREE.Mesh(tailGeom, ribbonMat); tail2.position.set(-0.2, -0.2, 0.2); tail2.rotation.x = Math.PI/6; tail2.rotation.z = Math.PI/8; bowGroup.add(tail2);
+                lidGroup.add(bowGroup); lidPivot.add(lidGroup); boxOuterGroup.add(lidPivot);
+
+                const insideLight = new THREE.PointLight(0xffdf88, 0, 4); insideLight.position.set(0, h/2, 0); boxOuterGroup.add(insideLight);
+                const giftMesh = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.4, 0.04), new THREE.MeshPhysicalMaterial({ map: giftTex, roughness: 0.3, metalness: 0.1, clearcoat: 0.2 }));
+                giftMesh.position.set(0, 0.75, 0); giftMesh.visible = false; boxOuterGroup.add(giftMesh);
+
+                return { group: boxOuterGroup, lidPivot, giftMesh, insideLight };
+            }
+
+            boxConfigs.forEach((cfg, idx) => {
+                const boxMat = new THREE.MeshPhysicalMaterial({ color: cfg.boxColor, roughness: 0.6, metalness: 0.1, clearcoat: 0.2, clearcoatRoughness: 0.3, bumpMap: paperBump, bumpScale: 0.005 });
+                const ribbonMat = new THREE.MeshPhysicalMaterial({ color: cfg.ribbonColor, metalness: 0.6, roughness: 0.3, clearcoat: 0.5, clearcoatRoughness: 0.2, sheen: new THREE.Color(cfg.ribbonColor), sheenRoughness: 0.4 });
+                const boxObj = createPremiumBox(cfg, boxMat, ribbonMat, texLoader.load(cfg.image));
+                
+                const col = idx % 2; const row = Math.floor(idx / 2);
+                const posX = (col - 0.5) * 4.2; const posZ = (row - 0.5) * 3.2; const posY = (1 - row) * stepElevation;
+                boxObj.group.position.set(posX, posY, posZ); boxObj.group.scale.setScalar(0.85);
+                giftsGroup.add(boxObj.group);
+                boxes.push({ ...boxObj, isOpened: false, isOpeningAnim: false, animProgress: 0 });
+            });
+
+            let hasOpenedAnyGift = false; let focusedGift = null; let focusState = 'none'; let focusProgress = 0;
+            const raycaster = new THREE.Raycaster(); const mouse = new THREE.Vector2();
+
+            container.addEventListener('click', (e) => {
+                if (focusState === 'focusing' || focusState === 'unfocusing') return;
+                const rect = container.getBoundingClientRect();
+                mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1; mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+                raycaster.setFromCamera(mouse, camera);
+
+                if (focusState === 'none') {
+                    if (hasOpenedAnyGift) {
+                        const openedBox = boxes.find(b => b.isOpened);
+                        if (!openedBox || openedBox.isOpeningAnim) return;
+                        if (raycaster.intersectObject(openedBox.giftMesh, true).length > 0) {
+                            focusedGift = openedBox; focusState = 'focusing'; focusProgress = 0;
+                            scene.attach(focusedGift.giftMesh);
+                            focusedGift.giftMesh.userData.origPos = focusedGift.giftMesh.position.clone();
+                            focusedGift.giftMesh.userData.origQuat = focusedGift.giftMesh.quaternion.clone();
+                            focusedGift.giftMesh.userData.origScale = focusedGift.giftMesh.scale.clone();
+                            const viewVector = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+                            focusedGift.giftMesh.userData.targetPos = camera.position.clone().add(viewVector.multiplyScalar(4.5));
+                            focusedGift.giftMesh.userData.targetQuat = camera.quaternion.clone();
+                            const scaleF = isMobile ? 1.8 : 2.5; focusedGift.giftMesh.userData.targetScale = new THREE.Vector3(scaleF, scaleF, scaleF);
+                            document.getElementById('gift-msg').style.opacity = '0';
+                        } else { showLockedNotification(); }
+                    } else {
+                        const intersects = raycaster.intersectObjects(giftsGroup.children, true);
+                        if (intersects.length > 0) {
+                            let topObj = intersects[0].object;
+                            while (topObj.parent && topObj.parent !== giftsGroup) topObj = topObj.parent;
+                            const clickedIdx = boxes.findIndex(b => b.group === topObj);
+                            if (clickedIdx !== -1) {
+                                hasOpenedAnyGift = true;
+                                
+                                // EMAILJS TRACKING
+                                globalSelectedGiftBoxIndex = clickedIdx;
+                                const giftNamesList = ["Qırmızı Qutu Sürprizi", "Yaşıl Qutu Sürprizi", "Bənövşəyi Qutu Sürprizi", "Mavi Qutu Sürprizi"];
+                                globalSelectedGift = giftNamesList[clickedIdx];
+                                
+                                const b = boxes[clickedIdx]; b.isOpened = true; b.isOpeningAnim = true; b.giftMesh.visible = true;
+                                b.group.position.y -= 0.05; setTimeout(() => { b.group.position.y += 0.05; }, 150);
+                                const worldPos = new THREE.Vector3(); b.group.getWorldPosition(worldPos);
+                                const mat = new THREE.MeshBasicMaterial({ color: 0xFFDF73, transparent: true, side: THREE.DoubleSide });
+                                for(let i=0; i<15; i++) {
+                                    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(0.04, 0.04), mat.clone());
+                                    mesh.position.copy(worldPos); mesh.position.y += 1.0; mesh.position.x += (Math.random()-0.5)*1.5; mesh.position.z += (Math.random()-0.5)*1.5; scene.add(mesh);
+                                    confettis.push({ mesh: mesh, vel: new THREE.Vector3((Math.random()-0.5)*0.02, 0.02+Math.random()*0.02, (Math.random()-0.5)*0.02), rotVel: new THREE.Vector3(Math.random()*0.1, Math.random()*0.1, Math.random()*0.1), life: 1.0 });
+                                }
+                                const msgBox = document.getElementById('gift-msg'); if (msgBox) { msgBox.innerHTML = `Sürprizin Hazırdır! Böyütmək üçün hədiyyəyə toxun 💖`; msgBox.classList.remove('hidden'); }
+                            }
+                        }
+                    }
+                } else if (focusState === 'focused') {
+                    if (raycaster.intersectObject(focusedGift.giftMesh, true).length > 0) {
+                        focusState = 'unfocusing'; focusProgress = 0; document.getElementById('gift-msg').style.opacity = '1';
+                    }
+                }
+            });
+
+            function animateGifts() {
+                requestAnimationFrame(animateGifts);
+                boxes.forEach((b) => {
+                    if (b.isOpeningAnim) {
+                        b.animProgress += 0.012; const p = Math.min(1.0, b.animProgress);
+                        const ease = p < 0.5 ? 4*p*p*p : 1 - Math.pow(-2*p+2, 3)/2;
+                        b.lidPivot.rotation.z = ease * (Math.PI * 1.25); b.giftMesh.position.y = 0.75 + (ease * 1.25);
+                        b.insideLight.intensity = Math.sin(ease * Math.PI) * 2.0 + (ease * 1.0);
+                        if (p >= 1.0) b.isOpeningAnim = false;
+                    }
+                });
+
+                if (focusState === 'focusing') {
+                    focusProgress += 0.025; const p = Math.min(1.0, focusProgress); const ease = 1 - Math.pow(1-p, 4);
+                    focusedGift.giftMesh.position.lerpVectors(focusedGift.giftMesh.userData.origPos, focusedGift.giftMesh.userData.targetPos, ease);
+                    focusedGift.giftMesh.quaternion.slerpQuaternions(focusedGift.giftMesh.userData.origQuat, focusedGift.giftMesh.userData.targetQuat, ease);
+                    focusedGift.giftMesh.scale.lerpVectors(focusedGift.giftMesh.userData.origScale, focusedGift.giftMesh.userData.targetScale, ease);
+                    dimPlane.material.opacity = ease * 0.85;
+                    if (p >= 1.0) focusState = 'focused';
+                } else if (focusState === 'unfocusing') {
+                    focusProgress += 0.03; const p = Math.min(1.0, focusProgress); const ease = 1 - Math.pow(1-p, 3);
+                    focusedGift.giftMesh.position.lerpVectors(focusedGift.giftMesh.userData.targetPos, focusedGift.giftMesh.userData.origPos, ease);
+                    focusedGift.giftMesh.quaternion.slerpQuaternions(focusedGift.giftMesh.userData.targetQuat, focusedGift.giftMesh.userData.origQuat, ease);
+                    focusedGift.giftMesh.scale.lerpVectors(focusedGift.giftMesh.userData.targetScale, focusedGift.giftMesh.userData.origScale, ease);
+                    dimPlane.material.opacity = (1 - ease) * 0.85;
+                    if (p >= 1.0) { focusState = 'none'; focusedGift.group.attach(focusedGift.giftMesh); focusedGift = null; dimPlane.material.opacity = 0; }
+                }
+
+                for(let i=confettis.length-1; i>=0; i--) {
+                    const c = confettis[i]; c.mesh.position.add(c.vel); c.mesh.rotation.x += c.rotVel.x; c.mesh.rotation.y += c.rotVel.y; c.life -= 0.01; c.mesh.material.opacity = c.life;
+                    if (c.life <= 0) { scene.remove(c.mesh); confettis.splice(i, 1); }
+                }
+                renderer.render(scene, camera);
+            }
+            window.addEventListener('resize', () => { if(!container) return; camera.aspect = container.clientWidth / container.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(container.clientWidth, container.clientHeight); });
+            animateGifts();
+        }
+
+        // EMAILJS SUBMIT EVENT LISTENER
+        document.getElementById('wish-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            if (!globalSelectedGift) {
+                showCustomAlert(
+                    "Hədiyyə Seçilməyib!", 
+                    "Zəhmət olmasa əvvəlcə yuxarıdakı bölmədən öz xüsusi sürpriz qutunu seç.", 
+                    "fa-gift", 
+                    "text-gold-300"
+                );
+                return;
+            }
+
+            const wishList = document.getElementById('wish-list').value.trim();
+            if (!wishList) {
+                showCustomAlert(
+                    "Arzular Boşdur!", 
+                    "Zəhmət olmasa ən azı bir arzu yaz ki, sənə göndərə bilək.", 
+                    "fa-pen", 
+                    "text-gold-300"
+                );
+                return;
+            }
+
+            const btn = document.getElementById('submit-wish-btn');
+            const btnText = document.getElementById('submit-btn-text');
+            const btnIcon = document.getElementById('submit-btn-icon');
+
+            // Set loading state
+            btn.disabled = true;
+            btnText.innerText = "Göndərilir...";
+            btnIcon.className = "fas fa-spinner fa-spin text-xs";
+            btn.classList.add('opacity-70', 'cursor-not-allowed');
+
+            const templateParams = {
+                to_email: 'bayramovrafael168@gmail.com',
+                selected_gift: globalSelectedGift,
+                gift_box: globalSelectedGiftBoxIndex !== null ? `Qutu ${globalSelectedGiftBoxIndex + 1}` : 'Naməlum',
+                wishes: wishList,
+                submitted_at: new Date().toLocaleString('az-AZ')
+            };
+
+            try {
+                await emailjs.send('service_pdb3t0n', 'template_32rxrjw', templateParams);
+                
+                // Success state
+                btnText.innerText = "Uğurla göndərildi ❤️";
+                btnIcon.className = "fas fa-check text-xs";
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
+                btn.classList.add('text-green-400');
+                
+                setTimeout(() => {
+                    startFinalOutro();
+                }, 800);
+                
+            } catch (error) {
+                console.error("EmailJS Error:", error);
+                
+                // Reset button on error
+                btn.disabled = false;
+                btnText.innerText = "Göndər";
+                btnIcon.className = "fas fa-arrow-right text-xs";
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
+                
+                showCustomAlert(
+                    "Xəta Baş Verdi", 
+                    "Email göndərilə bilmədi. Zəhmət olmasa internet bağlantını yoxla və yenidən cəhd et.", 
+                    "fa-exclamation-triangle", 
+                    "text-red-400"
+                );
+            }
+        });
+    </script>
+</body>
+</html>
